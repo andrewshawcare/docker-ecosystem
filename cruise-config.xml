@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="78">
+  <server artifactsdir="artifacts" agentAutoRegisterKey="123456789abcdef" commandRepositoryLocation="default" serverId="" />
+  <pipelines group="dockerEcosystem">
+    <pipeline name="docker-ecosystem-migration" template="docker">
+      <materials>
+        <git url="https://github.com/andrewshawcare/docker-ecosystem-migration.git" />
+      </materials>
+    </pipeline>
+    <pipeline name="docker-ecosystem-java-service" template="docker">
+      <materials>
+        <git url="https://github.com/andrewshawcare/docker-ecosystem-java-service.git" />
+        <pipeline pipelineName="docker-ecosystem-migration" stageName="push" materialName="docker-ecosystem-migration" />
+      </materials>
+    </pipeline>
+    <pipeline name="docker-ecosystem-node-service" template="docker">
+      <materials>
+        <git url="https://github.com/andrewshawcare/docker-ecosystem-node-service.git" />
+        <pipeline pipelineName="docker-ecosystem-migration" stageName="push" materialName="docker-ecosystem-migration" />
+      </materials>
+    </pipeline>
+    <pipeline name="docker-ecosystem-client" template="docker">
+      <materials>
+        <git url="https://github.com/andrewshawcare/docker-ecosystem-client.git" />
+        <pipeline pipelineName="docker-ecosystem-java-service" stageName="push" materialName="docker-ecosystem-java-service" />
+        <pipeline pipelineName="docker-ecosystem-node-service" stageName="push" materialName="docker-ecosystem-node-service" />
+      </materials>
+    </pipeline>
+  </pipelines>
+  <templates>
+    <pipeline name="docker">
+      <stage name="build" cleanWorkingDir="true">
+        <jobs>
+          <job name="build">
+            <tasks>
+              <exec command="bash">
+                <arg>-c</arg>
+                <arg>docker build --tag "localhost:5000/$GO_PIPELINE_NAME:$GO_REVISION" . &amp;&amp;
+                docker push "localhost:5000/$GO_PIPELINE_NAME:$GO_REVISION"</arg>
+                <runif status="passed" />
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="test" cleanWorkingDir="true">
+        <jobs>
+          <job name="test">
+            <environmentvariables>
+              <variable name="IMAGE_REGISTRY">
+                <value>localhost:5000</value>
+              </variable>
+            </environmentvariables>
+            <tasks>
+              <exec command="bash">
+                <arg>-c</arg>
+                <arg>(export IMAGE_VERSION=$GO_REVISION; docker-compose pull &amp;&amp; docker-compose run --rm $GO_PIPELINE_NAME test &amp;&amp; docker-compose down --rmi local --volumes)</arg>
+                <runif status="passed" />
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="push" cleanWorkingDir="true">
+        <jobs>
+          <job name="push">
+            <tasks>
+              <exec command="bash">
+                <arg>-c</arg>
+                <arg>docker tag --force "localhost:5000/$GO_PIPELINE_NAME:$GO_REVISION" "localhost:5000/$GO_PIPELINE_NAME:latest" &amp;&amp;
+                docker push "localhost:5000/$GO_PIPELINE_NAME:latest"</arg>
+                <runif status="passed" />
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+  </templates>
+  <agents>
+    <agent hostname="7bfc3b90f5c2" ipaddress="172.18.0.4" uuid="869dc3d9-d752-4e3b-b63a-5e0a5e48f3f9" />
+  </agents>
+</cruise>

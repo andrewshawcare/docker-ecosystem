@@ -1,0 +1,32 @@
+version: "2"
+volumes:
+  var_lib_go-server_addons:
+  var_log_go-server:
+  etc_go:
+  go-addons:
+  var_go:
+services:
+  registry:
+    image: registry:2
+    ports:
+      - '5000:5000'
+  gocd-server:
+    image: gocd/gocd-server
+    ports:
+      - '8153:8153'
+    volumes:
+      - var_lib_go-server_addons:/var/lib/go-server/addons
+      - var_log_go-server:/var/log/go-server
+      - etc_go:/etc/go
+      - go-addons:/go-addons
+      - var_go:/var/go
+      - ./cruise-config.xml:/etc/go/cruise-config.xml
+  gocd-agent:
+    image: andrewshawcare/gocd-docker-agent
+    volumes:
+      - $DOCKER_BINARY:/bin/docker
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - GO_SERVER=gocd-server
+    links:
+      - gocd-server
