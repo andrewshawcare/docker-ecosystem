@@ -10,7 +10,7 @@ This project is deployed with Docker. The easiest way to setup a Docker environm
 ### Docker Compose
 
 ```bash
-source setup.sh
+. setup.sh
 docker-compose up
 ```
 
