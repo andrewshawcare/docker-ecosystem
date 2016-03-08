@@ -19,3 +19,7 @@ If you want to scale agents (three in this example):
 ```bash
 docker-compose scale gocd-agent=3
 ```
+
+## GoCD Dashboard
+
+1. Go to `http://$(docker-machine ip):8153` in your browser.
