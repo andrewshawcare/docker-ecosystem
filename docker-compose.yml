@@ -24,7 +24,6 @@ services:
   gocd-agent:
     image: andrewshawcare/gocd-docker-agent
     volumes:
-      - $DOCKER_BINARY:/bin/docker
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - GO_SERVER=gocd-server
