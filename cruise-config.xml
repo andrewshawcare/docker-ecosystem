@@ -75,6 +75,24 @@
           </job>
         </jobs>
       </stage>
+      <stage name="deploy">
+        <jobs>
+          <job name="deploy">
+            <environmentvariables>
+              <variable name="IMAGE_REGISTRY">
+                <value>localhost:5000</value>
+              </variable>
+            </environmentvariables>
+            <tasks>
+              <exec command="bash">
+                <arg>-c</arg>
+                <arg>(export IMAGE_VERSION=$GO_REVISION; docker-compose pull &amp;&amp; docker-compose --project-name $GO_PIPELINE_NAME up -d)</arg>
+                <runif status="passed" />
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
     </pipeline>
   </templates>
 </cruise>
