@@ -6,6 +6,16 @@ volumes:
   go-addons:
   var_go:
 services:
+  consul:
+    image: gliderlabs/consul-server
+    command: -bootstrap
+    ports:
+      - '8500:8500'
+  registrator:
+    image: gliderlabs/registrator:master
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock
+    command: -retry-attempts 10 consul://consul:8500
   registry:
     image: registry:2
     ports:
