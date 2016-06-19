@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="78">
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="81">
   <server artifactsdir="artifacts" agentAutoRegisterKey="123456789abcdef" commandRepositoryLocation="default" serverId="" />
   <pipelines group="dockerEcosystem">
     <pipeline name="docker-ecosystem-migration" template="docker">
@@ -33,15 +33,15 @@
         <jobs>
           <job name="build">
             <environmentvariables>
-              <variable name="IMAGE_REGISTRY">
+              <variable name="REGISTRYHOST">
                 <value>localhost:5000</value>
               </variable>
             </environmentvariables>
             <tasks>
               <exec command="bash">
                 <arg>-c</arg>
-                <arg>docker build --tag "$IMAGE_REGISTRY/$GO_PIPELINE_NAME:$GO_REVISION" . &amp;&amp;
-                  docker push "$IMAGE_REGISTRY/$GO_PIPELINE_NAME:$GO_REVISION"</arg>
+                <arg>docker build --tag "$REGISTRYHOST/$GO_PIPELINE_NAME:$GO_REVISION" . &amp;&amp;
+                  docker push "$REGISTRYHOST/$GO_PIPELINE_NAME:$GO_REVISION"</arg>
                 <runif status="passed" />
               </exec>
             </tasks>
@@ -52,16 +52,16 @@
         <jobs>
           <job name="test">
             <environmentvariables>
-              <variable name="IMAGE_REGISTRY">
+              <variable name="REGISTRYHOST">
                 <value>localhost:5000</value>
               </variable>
             </environmentvariables>
             <tasks>
               <exec command="bash">
                 <arg>-c</arg>
-                <arg>IMAGE_VERSION=$GO_REVISION docker-compose pull &amp;&amp;
+                <arg>(export TAG=$GO_REVISION; docker-compose pull &amp;&amp;
                   docker-compose run --rm $GO_PIPELINE_NAME test &amp;&amp;
-                  docker-compose down --rmi local --volumes</arg>
+                  docker-compose down --rmi local --volumes)</arg>
                 <runif status="passed" />
               </exec>
             </tasks>
@@ -72,15 +72,15 @@
         <jobs>
           <job name="push">
             <environmentvariables>
-              <variable name="IMAGE_REGISTRY">
+              <variable name="REGISTRYHOST">
                 <value>localhost:5000</value>
               </variable>
             </environmentvariables>
             <tasks>
               <exec command="bash">
                 <arg>-c</arg>
-                <arg>docker tag --force "IMAGE_REGISTRY/$GO_PIPELINE_NAME:$GO_REVISION" "$IMAGE_REGISTRY/$GO_PIPELINE_NAME:latest" &amp;&amp;
-                docker push "$IMAGE_REGISTRY/$GO_PIPELINE_NAME:latest"</arg>
+                <arg>docker tag "$REGISTRYHOST/$GO_PIPELINE_NAME:$GO_REVISION" "$REGISTRYHOST/$GO_PIPELINE_NAME:latest" &amp;&amp;
+                docker push "$REGISTRYHOST/$GO_PIPELINE_NAME:latest"</arg>
                 <runif status="passed" />
               </exec>
             </tasks>
@@ -91,14 +91,14 @@
         <jobs>
           <job name="deploy">
             <environmentvariables>
-              <variable name="IMAGE_REGISTRY">
+              <variable name="REGISTRYHOST">
                 <value>localhost:5000</value>
               </variable>
             </environmentvariables>
             <tasks>
               <exec command="bash">
                 <arg>-c</arg>
-                <arg>(export IMAGE_VERSION=$GO_REVISION; docker-compose pull &amp;&amp;
+                <arg>(export TAG=$GO_REVISION; docker-compose pull &amp;&amp;
                   docker-compose --project-name $GO_PIPELINE_NAME up -d)</arg>
                 <runif status="passed" />
               </exec>
