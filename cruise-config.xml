@@ -32,11 +32,16 @@
       <stage name="build" cleanWorkingDir="true">
         <jobs>
           <job name="build">
+            <environmentvariables>
+              <variable name="IMAGE_REGISTRY">
+                <value>localhost:5000</value>
+              </variable>
+            </environmentvariables>
             <tasks>
               <exec command="bash">
                 <arg>-c</arg>
-                <arg>docker build --tag "localhost:5000/$GO_PIPELINE_NAME:$GO_REVISION" . &amp;&amp;
-                docker push "localhost:5000/$GO_PIPELINE_NAME:$GO_REVISION"</arg>
+                <arg>docker build --tag "$IMAGE_REGISTRY/$GO_PIPELINE_NAME:$GO_REVISION" . &amp;&amp;
+                  docker push "$IMAGE_REGISTRY/$GO_PIPELINE_NAME:$GO_REVISION"</arg>
                 <runif status="passed" />
               </exec>
             </tasks>
@@ -54,7 +59,9 @@
             <tasks>
               <exec command="bash">
                 <arg>-c</arg>
-                <arg>(export IMAGE_VERSION=$GO_REVISION; docker-compose pull &amp;&amp; docker-compose run --rm $GO_PIPELINE_NAME test &amp;&amp; docker-compose down --rmi local --volumes)</arg>
+                <arg>IMAGE_VERSION=$GO_REVISION docker-compose pull &amp;&amp;
+                  docker-compose run --rm $GO_PIPELINE_NAME test &amp;&amp;
+                  docker-compose down --rmi local --volumes</arg>
                 <runif status="passed" />
               </exec>
             </tasks>
@@ -64,11 +71,16 @@
       <stage name="push" cleanWorkingDir="true">
         <jobs>
           <job name="push">
+            <environmentvariables>
+              <variable name="IMAGE_REGISTRY">
+                <value>localhost:5000</value>
+              </variable>
+            </environmentvariables>
             <tasks>
               <exec command="bash">
                 <arg>-c</arg>
-                <arg>docker tag --force "localhost:5000/$GO_PIPELINE_NAME:$GO_REVISION" "localhost:5000/$GO_PIPELINE_NAME:latest" &amp;&amp;
-                docker push "localhost:5000/$GO_PIPELINE_NAME:latest"</arg>
+                <arg>docker tag --force "IMAGE_REGISTRY/$GO_PIPELINE_NAME:$GO_REVISION" "$IMAGE_REGISTRY/$GO_PIPELINE_NAME:latest" &amp;&amp;
+                docker push "$IMAGE_REGISTRY/$GO_PIPELINE_NAME:latest"</arg>
                 <runif status="passed" />
               </exec>
             </tasks>
@@ -86,7 +98,8 @@
             <tasks>
               <exec command="bash">
                 <arg>-c</arg>
-                <arg>(export IMAGE_VERSION=$GO_REVISION; docker-compose pull &amp;&amp; docker-compose --project-name $GO_PIPELINE_NAME up -d)</arg>
+                <arg>(export IMAGE_VERSION=$GO_REVISION; docker-compose pull &amp;&amp;
+                  docker-compose --project-name $GO_PIPELINE_NAME up -d)</arg>
                 <runif status="passed" />
               </exec>
             </tasks>
