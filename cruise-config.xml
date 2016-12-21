@@ -33,15 +33,15 @@
         <jobs>
           <job name="build">
             <environmentvariables>
-              <variable name="REGISTRYHOST">
+              <variable name="REGISTRY_HOST">
                 <value>localhost:5000</value>
               </variable>
             </environmentvariables>
             <tasks>
               <exec command="bash">
                 <arg>-c</arg>
-                <arg>docker build --tag "$REGISTRYHOST/$GO_PIPELINE_NAME:$GO_REVISION" . &amp;&amp;
-                  docker push "$REGISTRYHOST/$GO_PIPELINE_NAME:$GO_REVISION"</arg>
+                <arg>docker build --tag "$REGISTRY_HOST/$GO_PIPELINE_NAME:$GO_REVISION" . &amp;&amp;
+                  docker push "$REGISTRY_HOST/$GO_PIPELINE_NAME:$GO_REVISION"</arg>
                 <runif status="passed" />
               </exec>
             </tasks>
@@ -52,14 +52,14 @@
         <jobs>
           <job name="test">
             <environmentvariables>
-              <variable name="REGISTRYHOST">
+              <variable name="REGISTRY_HOST">
                 <value>localhost:5000</value>
               </variable>
             </environmentvariables>
             <tasks>
               <exec command="bash">
                 <arg>-c</arg>
-                <arg>(export TAG=$GO_REVISION; docker-compose pull &amp;&amp;
+                <arg>(export IMAGE_TAG=$GO_REVISION; docker-compose pull &amp;&amp;
                   docker-compose run --rm $GO_PIPELINE_NAME test &amp;&amp;
                   docker-compose down --rmi local --volumes)</arg>
                 <runif status="passed" />
@@ -72,15 +72,15 @@
         <jobs>
           <job name="push">
             <environmentvariables>
-              <variable name="REGISTRYHOST">
+              <variable name="REGISTRY_HOST">
                 <value>localhost:5000</value>
               </variable>
             </environmentvariables>
             <tasks>
               <exec command="bash">
                 <arg>-c</arg>
-                <arg>docker tag "$REGISTRYHOST/$GO_PIPELINE_NAME:$GO_REVISION" "$REGISTRYHOST/$GO_PIPELINE_NAME:latest" &amp;&amp;
-                docker push "$REGISTRYHOST/$GO_PIPELINE_NAME:latest"</arg>
+                <arg>docker tag "$REGISTRY_HOST/$GO_PIPELINE_NAME:$GO_REVISION" "$REGISTRY_HOST/$GO_PIPELINE_NAME:latest" &amp;&amp;
+                docker push "$REGISTRY_HOST/$GO_PIPELINE_NAME:latest"</arg>
                 <runif status="passed" />
               </exec>
             </tasks>
@@ -91,14 +91,14 @@
         <jobs>
           <job name="deploy">
             <environmentvariables>
-              <variable name="REGISTRYHOST">
+              <variable name="REGISTRY_HOST">
                 <value>localhost:5000</value>
               </variable>
             </environmentvariables>
             <tasks>
               <exec command="bash">
                 <arg>-c</arg>
-                <arg>(export TAG=$GO_REVISION; docker-compose pull &amp;&amp;
+                <arg>(export IMAGE_TAG=$GO_REVISION; docker-compose pull &amp;&amp;
                   docker-compose --project-name $GO_PIPELINE_NAME up -d)</arg>
                 <runif status="passed" />
               </exec>
