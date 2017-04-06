@@ -36,6 +36,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - GO_SERVER=gocd-server
+      - GO_SERVER_URL=https://gocd-server:8154/go
+      - AGENT_AUTO_REGISTER_KEY=123456789abcdef
     links:
       - gocd-server
