@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="81">
-  <server artifactsdir="artifacts" agentAutoRegisterKey="123456789abcdef" commandRepositoryLocation="default" serverId="" />
-  <pipelines group="dockerEcosystem">
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="94">
+  <server artifactsdir="artifacts" agentAutoRegisterKey="f5a24b44-7b7d-4361-84da-3cd4dd958828" webhookSecret="bf7d5374-22c2-4841-8762-4464ae31e771" commandRepositoryLocation="default" serverId="59bcec3b-7d6b-4780-9099-11dccf644b6a" />
+  <pipelines group="docker-ecosystem">
     <pipeline name="docker-ecosystem-migration" template="docker">
       <materials>
         <git url="https://github.com/andrewshawcare/docker-ecosystem-migration.git" />
@@ -40,8 +40,7 @@
             <tasks>
               <exec command="bash">
                 <arg>-c</arg>
-                <arg>docker build --tag "$REGISTRY_HOST/$GO_PIPELINE_NAME:$GO_REVISION" . &amp;&amp;
-                  docker push "$REGISTRY_HOST/$GO_PIPELINE_NAME:$GO_REVISION"</arg>
+                <arg>docker build --tag "$REGISTRY_HOST/$GO_PIPELINE_NAME:$GO_REVISION" . &amp;&amp; docker push "$REGISTRY_HOST/$GO_PIPELINE_NAME:$GO_REVISION"</arg>
                 <runif status="passed" />
               </exec>
             </tasks>
@@ -49,58 +48,51 @@
         </jobs>
       </stage>
       <stage name="test" cleanWorkingDir="true">
+        <environmentvariables>
+          <variable name="REGISTRY_HOST">
+            <value>localhost:5000</value>
+          </variable>
+        </environmentvariables>
         <jobs>
           <job name="test">
-            <environmentvariables>
-              <variable name="REGISTRY_HOST">
-                <value>localhost:5000</value>
-              </variable>
-            </environmentvariables>
             <tasks>
               <exec command="bash">
                 <arg>-c</arg>
-                <arg>(export IMAGE_TAG=$GO_REVISION; docker-compose pull &amp;&amp;
-                  docker-compose run --rm $GO_PIPELINE_NAME test &amp;&amp;
-                  docker-compose down --rmi local --volumes)</arg>
-                <runif status="passed" />
+                <arg>(export IMAGE_TAG=$GO_REVISION; docker-compose pull &amp;&amp; docker-compose run --rm $GO_PIPELINE_NAME test &amp;&amp; docker-compose down --rmi local --volumes)</arg>
               </exec>
             </tasks>
           </job>
         </jobs>
       </stage>
       <stage name="push" cleanWorkingDir="true">
+        <environmentvariables>
+          <variable name="REGISTRY_HOST">
+            <value>localhost:5000</value>
+          </variable>
+        </environmentvariables>
         <jobs>
           <job name="push">
-            <environmentvariables>
-              <variable name="REGISTRY_HOST">
-                <value>localhost:5000</value>
-              </variable>
-            </environmentvariables>
             <tasks>
               <exec command="bash">
                 <arg>-c</arg>
-                <arg>docker tag "$REGISTRY_HOST/$GO_PIPELINE_NAME:$GO_REVISION" "$REGISTRY_HOST/$GO_PIPELINE_NAME:latest" &amp;&amp;
-                docker push "$REGISTRY_HOST/$GO_PIPELINE_NAME:latest"</arg>
-                <runif status="passed" />
+                <arg>docker tag "$REGISTRY_HOST/$GO_PIPELINE_NAME:$GO_REVISION" "$REGISTRY_HOST/$GO_PIPELINE_NAME:latest" &amp;&amp; docker push "$REGISTRY_HOST/$GO_PIPELINE_NAME:latest"</arg>
               </exec>
             </tasks>
           </job>
         </jobs>
       </stage>
-      <stage name="deploy">
+      <stage name="deploy" cleanWorkingDir="true">
+        <environmentvariables>
+          <variable name="REGISTRY_HOST">
+            <value>localhost:5000</value>
+          </variable>
+        </environmentvariables>
         <jobs>
           <job name="deploy">
-            <environmentvariables>
-              <variable name="REGISTRY_HOST">
-                <value>localhost:5000</value>
-              </variable>
-            </environmentvariables>
             <tasks>
               <exec command="bash">
                 <arg>-c</arg>
-                <arg>(export IMAGE_TAG=$GO_REVISION; docker-compose pull &amp;&amp;
-                  docker-compose --project-name $GO_PIPELINE_NAME up -d)</arg>
-                <runif status="passed" />
+                <arg>(export IMAGE_TAG=$GO_REVISION; docker-compose pull &amp;&amp; docker-compose --project-name $GO_PIPELINE_NAME up -d)</arg>
               </exec>
             </tasks>
           </job>

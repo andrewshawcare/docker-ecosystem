@@ -1,10 +1,4 @@
 version: "2"
-volumes:
-  var_lib_go-server_addons:
-  var_log_go-server:
-  etc_go:
-  go-addons:
-  var_go:
 services:
   consul:
     image: gliderlabs/consul-server
@@ -21,22 +15,19 @@ services:
     ports:
       - '5000:5000'
   gocd-server:
-    image: gocd/gocd-server
+    image: gocd/gocd-server:v17.8.0
     ports:
       - '8153:8153'
     volumes:
-      - var_lib_go-server_addons:/var/lib/go-server/addons
-      - var_log_go-server:/var/log/go-server
-      - etc_go:/etc/go
-      - go-addons:/go-addons
-      - var_go:/var/go
-      - ./cruise-config.xml:/etc/go/cruise-config.xml
+      - ./gocd-server/cruise-config.xml:/godata/config/cruise-config.xml
   gocd-agent:
-    image: andrewshawcare/gocd-docker-agent
+    image: gocd/gocd-agent-alpine-3.5:v17.8.0
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./gocd-agent/entrypoint.sh:/entrypoint.sh
     environment:
       - GO_SERVER_URL=https://gocd-server:8154/go
-      - AGENT_AUTO_REGISTER_KEY=123456789abcdef
+      - AGENT_AUTO_REGISTER_KEY=f5a24b44-7b7d-4361-84da-3cd4dd958828
+    entrypoint: /entrypoint.sh
     links:
       - gocd-server

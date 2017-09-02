@@ -23,3 +23,7 @@ docker-compose scale gocd-agent=3
 ## GoCD Dashboard
 
 1. Go to `http://$(docker-machine ip):8153` in your browser.
+
+## Consul
+
+1. As projects are deployed, you can find their status listed in Consul. Go to `http://$(docker-machine ip):8500` to view a list of currently deployed projects.
