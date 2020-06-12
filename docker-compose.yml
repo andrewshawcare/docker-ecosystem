@@ -4,7 +4,7 @@ services:
     image: gliderlabs/consul-server
     command: -bootstrap
     ports:
-      - '8500:8500'
+      - "8500:8500"
   registrator:
     image: gliderlabs/registrator:master
     volumes:
@@ -13,21 +13,23 @@ services:
   registry:
     image: registry:2
     ports:
-      - '5000:5000'
+      - "5000:5000"
   gocd-server:
-    image: gocd/gocd-server:v17.8.0
+    image: gocd/gocd-server:v20.4.0
     ports:
-      - '8153:8153'
+      - "8153:8153"
     volumes:
       - ./gocd-server/cruise-config.xml:/godata/config/cruise-config.xml
+    user: root
   gocd-agent:
-    image: gocd/gocd-agent-alpine-3.5:v17.8.0
+    image: gocd/gocd-agent-alpine-3.9:v20.4.0
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./gocd-agent/entrypoint.sh:/entrypoint.sh
-    environment:
-      - GO_SERVER_URL=https://gocd-server:8154/go
-      - AGENT_AUTO_REGISTER_KEY=f5a24b44-7b7d-4361-84da-3cd4dd958828
     entrypoint: /entrypoint.sh
+    environment:
+      - GO_SERVER_URL=http://gocd-server:8153/go
+      - AGENT_AUTO_REGISTER_KEY=f5a24b44-7b7d-4361-84da-3cd4dd958828
     links:
       - gocd-server
+    user: root

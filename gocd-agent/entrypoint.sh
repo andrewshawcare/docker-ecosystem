@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-apk add --no-cache docker py-pip
+apk add --no-cache build-base python2-dev libffi-dev openssl-dev docker py-pip
 pip install docker-compose
 
 adduser go docker

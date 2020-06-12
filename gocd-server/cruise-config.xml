@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="94">
-  <server artifactsdir="artifacts" agentAutoRegisterKey="f5a24b44-7b7d-4361-84da-3cd4dd958828" webhookSecret="bf7d5374-22c2-4841-8762-4464ae31e771" commandRepositoryLocation="default" serverId="59bcec3b-7d6b-4780-9099-11dccf644b6a" />
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="136">
+  <server agentAutoRegisterKey="f5a24b44-7b7d-4361-84da-3cd4dd958828" webhookSecret="bf7d5374-22c2-4841-8762-4464ae31e771" commandRepositoryLocation="default" serverId="59bcec3b-7d6b-4780-9099-11dccf644b6a" tokenGenerationKey="b0f3291d-9050-483c-8a08-a31136e5134b">
+    <artifacts>
+      <artifactsDir>artifacts</artifactsDir>
+    </artifacts>
+  </server>
   <pipelines group="docker-ecosystem">
     <pipeline name="docker-ecosystem-migration" template="docker">
       <materials>
